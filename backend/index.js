@@ -13,7 +13,11 @@ const app = express();
 
 connectDb();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://contact-form-mern-stack-6uov.vercel.app/",
+  })
+);
 app.use(bodyParser.json());
 
 app.use("/api", contactRoute);
