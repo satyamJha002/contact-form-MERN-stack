@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { toast } from "react-toastify";
 import { Box, TextField, Typography } from "@mui/material";
 import { validate } from "../contactValidation";
 import axios from "axios";
 
-const Contact = () => {
+const Contact = ({ isEditContactForm, contact, onClose }) => {
+  console.log(contact);
   const [contactData, setContactData] = useState({
     firstName: "",
     lastName: "",
@@ -21,7 +21,20 @@ const Contact = () => {
 
   const [error, setError] = useState({});
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (isEditContactForm && contact) {
+      setContactData(contact);
+    } else {
+      setContactData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        companyName: "",
+        jobTitle: "",
+      });
+    }
+  }, [isEditContactForm, contact]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,19 +51,35 @@ const Contact = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/contacts",
-        contactData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      let response;
 
-      if (response.status === 201) {
-        console.log("Resource created successfully:", response.data);
-        toast.success("Contact created successfully!");
+      if (isEditContactForm) {
+        response = await axios.put(
+          `http://localhost:5000/api/contacts/${contact._id}`,
+          contactData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        toast.success("Contact updated successfully");
+        window.location.reload();
+      } else {
+        response = await axios.post(
+          "http://localhost:5000/api/contacts",
+          contactData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        toast.success("Contact added successfully");
+        window.location.reload();
+      }
+
+      if (response.status === 200 || response.status === 201) {
         setContactData({
           firstName: "",
           lastName: "",
@@ -59,10 +88,11 @@ const Contact = () => {
           companyName: "",
           jobTitle: "",
         });
-        navigate("/");
+        onClose();
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.error(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -76,6 +106,7 @@ const Contact = () => {
         companyName: "",
         jobTitle: "",
       });
+      onClose();
     }
   };
 
@@ -91,7 +122,7 @@ const Contact = () => {
           mb={0.2}
           className="text-2xl font-bold text-gray-800 mb-4"
         >
-          Contact Form
+          {isEditContactForm ? "Edit Contact" : "Add Contact"}
         </Typography>
         <TextField
           label="First Name"
@@ -166,14 +197,7 @@ const Contact = () => {
             type="submit"
             className="bg-indigo-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-indigo-700"
           >
-            Submit
-          </Button>
-          <Button
-            variant="contained"
-            className="bg-black"
-            onClick={() => navigate("/")}
-          >
-            Back
+            {isEditContactForm ? "Update" : "Submit"}
           </Button>
 
           <Button variant="contained" type="button" onClick={handleCancel}>

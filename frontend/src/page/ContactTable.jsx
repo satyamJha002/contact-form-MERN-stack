@@ -1,5 +1,7 @@
 import {
   Button,
+  Modal,
+  Box,
   Paper,
   Table,
   TableBody,
@@ -12,6 +14,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import Contact from "./ContactForm";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -19,6 +22,10 @@ const ContactTable = () => {
   const [contactDetails, setContactDetails] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [open, setOpen] = useState(false);
+  const [isEditContactForm, setIsEditContactForm] = useState(false);
+  const [selectedContactForm, setSelectedContactForm] = useState(null);
 
   useEffect(() => {
     const fetchContacts = async (req, res) => {
@@ -29,6 +36,22 @@ const ContactTable = () => {
     };
     fetchContacts();
   }, []);
+
+  const handleAdd = () => {
+    setIsEditContactForm(false);
+    setSelectedContactForm(null);
+    setOpen(true);
+  };
+
+  const handleEdit = (isEdit = false, contact = null) => {
+    setIsEditContactForm(isEdit);
+    setSelectedContactForm(contact);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleDelete = async (id) => {
     console.log(id);
@@ -77,10 +100,38 @@ const ContactTable = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <Link to="/create">
-        <Button variant="contained" color="success" className="mb-4">
+        <Button
+          variant="contained"
+          color="success"
+          className="mb-4"
+          onClick={handleAdd}
+        >
           Add Contact
         </Button>
       </Link>
+
+      <Modal open={open} onClose={handleClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Contact
+            isEditContactForm={isEditContactForm}
+            contact={selectedContactForm}
+            onClose={handleClose}
+          />
+        </Box>
+      </Modal>
       <TableContainer
         component={Paper}
         className="p-4 w-full max-w-6xl shadow-lg rounded-lg"
@@ -118,11 +169,14 @@ const ContactTable = () => {
                 <TableCell>{contact.companyName}</TableCell>
                 <TableCell>{contact.jobTitle}</TableCell>
                 <TableCell className="flex space-x-2">
-                  <Link to={`/update/${contact._id}`}>
-                    <Button variant="contained" color="primary">
-                      Edit
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleEdit(true, contact)}
+                  >
+                    Edit
+                  </Button>
+
                   <Button
                     variant="contained"
                     onClick={() => handleDelete(contact._id)}
