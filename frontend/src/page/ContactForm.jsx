@@ -66,6 +66,19 @@ const Contact = () => {
     }
   };
 
+  const handleCancel = () => {
+    if (window.confirm("Are your sure you want to cancel ?")) {
+      setContactData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        companyName: "",
+        jobTitle: "",
+      });
+    }
+  };
+
   return (
     <Box
       component="form"
@@ -147,13 +160,24 @@ const Contact = () => {
           error={!!error.jobTitle}
           helperText={error.jobTitle}
         />
-        <Box mt={2} className="flex justify-between">
+        <Box mt={2} className="flex justify-center gap-4">
           <Button
             variant="contained"
             type="submit"
             className="bg-indigo-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-indigo-700"
           >
             Submit
+          </Button>
+          <Button
+            variant="contained"
+            className="bg-black"
+            onClick={() => navigate("/")}
+          >
+            Back
+          </Button>
+
+          <Button variant="contained" type="button" onClick={handleCancel}>
+            Cancel
           </Button>
         </Box>
       </Box>

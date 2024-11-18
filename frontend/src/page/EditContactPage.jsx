@@ -81,7 +81,11 @@ const EditContactPage = () => {
         }
       );
 
-      if (response.status === 201) {
+      if (
+        response.status === 200 ||
+        response.status === 201 ||
+        response.status === 204
+      ) {
         console.log("Resource updated successfully:", response.data);
         toast.success("Contact updated successfully!");
         setContact({
@@ -98,6 +102,17 @@ const EditContactPage = () => {
       console.error("Update failed:", error.response.data.message);
       toast.error(error.response.data.message);
     }
+  };
+
+  const handleCancel = () => {
+    setContact({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      companyName: "",
+      jobTitle: "",
+    });
   };
 
   const handleChange = (e) => {
@@ -198,6 +213,16 @@ const EditContactPage = () => {
               className="bg-indigo-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-indigo-700"
             >
               Update
+            </Button>
+            <Button
+              variant="contained"
+              className="bg-black"
+              onClick={() => navigate("/")}
+            >
+              Back
+            </Button>
+            <Button variant="contained" onClick={handleCancel}>
+              Cancel
             </Button>
           </Box>
         </Box>
